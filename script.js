@@ -1,5 +1,7 @@
 let jokeText = '';
 const audioElement = document.querySelector('#audio');
+const buttonElement = document.getElementById('button');
+
 
 
 async function getJoke(){
@@ -11,6 +13,8 @@ async function getJoke(){
 
 
 function convertJoketoAudio(){
+    // disable button so that user can't press the button while a joke is in progress.
+    toggleButton()
 
     VoiceRSS.speech({
         key: 'a77ac122dfb54890b5da5cdf66aec2af',
@@ -64,7 +68,14 @@ var VoiceRSS = {
             if (4 == t.readyState && 200 == t.status) {
                 if (0 == t.responseText.indexOf("ERROR")) throw t.responseText;
                audioElement.src = t.responseText;
-               getJoke()
+               audioElement.play();
+            //    add event so that the button is made active again once the audio has ended
+               audioElement.addEventListener('ended', () => {
+                toggleButton()
+                // get another joke for the next time button is pressed.
+                getJoke()
+               })
+           
             }
         }),
             t.open("POST", "https://api.voicerss.org/", !0),
@@ -113,7 +124,9 @@ var VoiceRSS = {
 };
 
 
-
+function toggleButton(){
+    buttonElement.disabled = !buttonElement.disabled;
+}
 
 
 getJoke();
